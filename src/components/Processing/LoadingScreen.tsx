@@ -54,30 +54,36 @@ export const LoadingScreen: React.FC = () => {
   const { processing, candidates } = useDashboardStore();
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [completedStages, setCompletedStages] = useState<string[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (!processing.isProcessing) return;
 
-    // Cycle through stages
     const interval = setInterval(() => {
-      setCurrentStageIndex(prev => {
-        const nextIndex = (prev + 1) % LOADING_STAGES.length;
-        if (nextIndex === 0) {
-          // Completed a full cycle
-          setCompletedStages(LOADING_STAGES.map(s => s.id));
-        }
-        return nextIndex;
-      });
-    }, LOADING_STAGES[currentStageIndex]?.duration || 3000);
+      setIsTransitioning(true);
+      
+      // After a brief moment, change the stage
+      setTimeout(() => {
+        setCurrentStageIndex(prev => {
+          const nextIndex = (prev + 1) % LOADING_STAGES.length;
+          if (nextIndex === 0) {
+            setCompletedStages(LOADING_STAGES.map(s => s.id));
+          }
+          return nextIndex;
+        });
+        setIsTransitioning(false);
+      }, 300);
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [currentStageIndex, processing.isProcessing]);
+  }, [processing.isProcessing]);
 
   // Reset when processing starts
   useEffect(() => {
     if (processing.isProcessing && processing.currentStage === 'upload') {
       setCurrentStageIndex(0);
       setCompletedStages([]);
+      setIsTransitioning(false);
     }
   }, [processing.isProcessing, processing.currentStage]);
 
@@ -119,16 +125,28 @@ export const LoadingScreen: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        {/* Current Stage - Large Display */}
-        <div className="mb-16 animate-scale-in">
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-12 max-w-3xl mx-auto transform transition-all duration-700 hover:scale-105">
+        {/* Current Stage - Large Display with Masterpiece Animation */}
+        <div className="mb-16 relative">
+          <div className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-12 max-w-3xl mx-auto transition-all duration-700 ${
+            isTransitioning 
+              ? 'transform scale-95 opacity-80 translate-y-4' 
+              : 'transform scale-105 opacity-100 translate-y-0 shadow-3xl'
+          }`}>
             <div className="flex items-center justify-center space-x-6 mb-8">
-              <div className={`w-20 h-20 ${currentStage.bgColor} rounded-3xl flex items-center justify-center animate-pulse shadow-lg`}>
-                <currentStage.icon className={`w-10 h-10 ${currentStage.color}`} />
+              <div className={`w-20 h-20 ${currentStage.bgColor} rounded-3xl flex items-center justify-center shadow-lg transition-all duration-700 ${
+                isTransitioning ? 'scale-90 rotate-12' : 'scale-110 rotate-0 animate-pulse'
+              }`}>
+                <currentStage.icon className={`w-10 h-10 ${currentStage.color} transition-all duration-500 ${
+                  isTransitioning ? 'scale-75' : 'scale-110'
+                }`} />
               </div>
               <div className="text-left">
-                <h1 className="text-4xl font-bold font-inter text-slate-900 mb-2">{currentStage.title}</h1>
-                <p className="text-xl text-slate-600 font-ibm">{currentStage.description}</p>
+                <h1 className={`text-4xl font-bold font-inter text-slate-900 mb-2 transition-all duration-500 ${
+                  isTransitioning ? 'opacity-70 translate-x-2' : 'opacity-100 translate-x-0'
+                }`}>{currentStage.title}</h1>
+                <p className={`text-xl text-slate-600 font-ibm transition-all duration-500 ${
+                  isTransitioning ? 'opacity-60 translate-x-1' : 'opacity-100 translate-x-0'
+                }`}>{currentStage.description}</p>
               </div>
             </div>
             
@@ -137,7 +155,9 @@ export const LoadingScreen: React.FC = () => {
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-3 h-3 bg-primary rounded-full animate-pulse"
+                  className={`w-3 h-3 bg-primary rounded-full transition-all duration-300 ${
+                    isTransitioning ? 'animate-none opacity-50' : 'animate-pulse'
+                  }`}
                   style={{ 
                     animationDelay: `${i * 0.3}s`,
                     animationDuration: '1s'
@@ -146,37 +166,56 @@ export const LoadingScreen: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Floating effect overlay */}
+          <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent rounded-3xl transition-opacity duration-700 ${
+            isTransitioning ? 'opacity-0' : 'opacity-100 animate-pulse'
+          }`}></div>
         </div>
 
-        {/* Other Stages - Small Display at Bottom */}
+        {/* Other Stages - Small Display at Bottom with Float-up Animation */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
           {otherStages.map((stage, index) => {
             const isCompleted = completedStages.includes(stage.id);
+            const willBeNext = LOADING_STAGES[(currentStageIndex + 1) % LOADING_STAGES.length].id === stage.id;
             
             return (
               <div
                 key={stage.id}
-                className={`relative p-4 rounded-xl border transition-all duration-500 transform hover:scale-105 ${
+                className={`relative p-4 rounded-xl border transition-all duration-700 transform ${
                   isCompleted 
-                    ? 'bg-green-50 border-green-200 shadow-lg' 
-                    : 'bg-white/60 border-slate-200 shadow-sm'
-                } backdrop-blur-sm`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                    ? 'bg-green-50 border-green-200 shadow-lg scale-100' 
+                    : willBeNext
+                    ? 'bg-white/80 border-primary/30 shadow-lg scale-105 -translate-y-2 animate-pulse'
+                    : 'bg-white/60 border-slate-200 shadow-sm scale-100 translate-y-0'
+                } backdrop-blur-sm hover:scale-110 hover:-translate-y-1`}
+                style={{ 
+                  animationDelay: `${index * 0.1}s`,
+                  transitionDelay: willBeNext ? '0ms' : `${index * 50}ms`
+                }}
               >
                 <div className="flex flex-col items-center space-y-2">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
                     isCompleted 
-                      ? 'bg-green-500 text-white' 
-                      : `${stage.bgColor} ${stage.color}`
+                      ? 'bg-green-500 text-white scale-110' 
+                      : willBeNext
+                      ? `${stage.bgColor} ${stage.color} scale-110 animate-pulse`
+                      : `${stage.bgColor} ${stage.color} scale-100`
                   }`}>
                     {isCompleted ? (
                       <CheckCircle className="w-5 h-5" />
                     ) : (
-                      <stage.icon className="w-5 h-5" />
+                      <stage.icon className={`w-5 h-5 transition-transform duration-300 ${
+                        willBeNext ? 'rotate-12' : 'rotate-0'
+                      }`} />
                     )}
                   </div>
-                  <p className={`text-sm font-medium font-inter text-center ${
-                    isCompleted ? 'text-green-700' : 'text-slate-700'
+                  <p className={`text-sm font-medium font-inter text-center transition-all duration-300 ${
+                    isCompleted 
+                      ? 'text-green-700' 
+                      : willBeNext
+                      ? 'text-primary font-semibold'
+                      : 'text-slate-700'
                   }`}>
                     {stage.title}
                   </p>
@@ -187,6 +226,10 @@ export const LoadingScreen: React.FC = () => {
                     <CheckCircle className="w-4 h-4 text-white" />
                   </div>
                 )}
+
+                {willBeNext && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full animate-ping"></div>
+                )}
               </div>
             );
           })}
@@ -194,7 +237,9 @@ export const LoadingScreen: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg animate-scale-in">
+          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+            isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
+          }`}>
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <FileText className="w-6 h-6 text-blue-600" />
@@ -206,7 +251,9 @@ export const LoadingScreen: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg animate-scale-in" style={{ animationDelay: '0.1s' }}>
+          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+            isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
+          }`} style={{ transitionDelay: '0.1s' }}>
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <Clock className="w-6 h-6 text-purple-600" />
@@ -220,7 +267,9 @@ export const LoadingScreen: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg animate-scale-in" style={{ animationDelay: '0.2s' }}>
+          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+            isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
+          }`} style={{ transitionDelay: '0.2s' }}>
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-green-600" />
@@ -235,7 +284,9 @@ export const LoadingScreen: React.FC = () => {
 
         {/* Fun fact or tip */}
         <div className="mt-12 max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-6 border border-primary/20 animate-fade-in">
+          <div className={`bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl p-6 border border-primary/20 transition-all duration-500 ${
+            isTransitioning ? 'opacity-70 scale-98' : 'opacity-100 scale-100'
+          }`}>
             <p className="text-sm text-slate-600 font-ibm italic">
               💡 Our AI analyzes over 50 different factors including skills, experience, education, and cultural fit to provide the most accurate candidate rankings.
             </p>
