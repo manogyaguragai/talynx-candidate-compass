@@ -5,8 +5,6 @@ import { ChevronDown, ChevronUp, Mail, Phone, MessageSquare, Eye, Star } from 'l
 export const CandidateTable: React.FC = () => {
   const { 
     candidates, 
-    selectedCandidates, 
-    toggleCandidateSelection, 
     setSelectedCandidate 
   } = useDashboardStore();
 
@@ -61,22 +59,6 @@ export const CandidateTable: React.FC = () => {
         <table className="w-full">
           <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
             <tr>
-              <th className="text-left p-4 text-sm font-semibold font-inter text-slate-700">
-                <input 
-                  type="checkbox" 
-                  className="rounded border-slate-300 hover:border-primary transition-colors"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      const allIds = tableCandidates.slice(0, 3).map(c => c.id);
-                      allIds.forEach(id => {
-                        if (!selectedCandidates.includes(id)) {
-                          toggleCandidateSelection(id);
-                        }
-                      });
-                    }
-                  }}
-                />
-              </th>
               <th className="text-left p-4 text-sm font-semibold font-inter text-slate-700">Rank</th>
               <th className="text-left p-4 text-sm font-semibold font-inter text-slate-700">Name</th>
               <th className="text-left p-4 text-sm font-semibold font-inter text-slate-700">
@@ -99,21 +81,11 @@ export const CandidateTable: React.FC = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <td className="p-4">
-                  <input 
-                    type="checkbox"
-                    checked={selectedCandidates.includes(candidate.id)}
-                    onChange={() => toggleCandidateSelection(candidate.id)}
-                    disabled={!selectedCandidates.includes(candidate.id) && selectedCandidates.length >= 3}
-                    className="rounded border-slate-300 hover:border-primary transition-colors"
-                  />
-                </td>
-                
-                <td className="p-4">
                   <div className="flex items-center space-x-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white transform transition-transform hover:scale-110 ${getRankBadgeStyle(index)}`}>
-                      {index + 1} {/* Show actual rank starting from 1 */}
+                      {index + 1}
                     </div>
-                    {index < 3 && ( // Show pulse for top 3 candidates
+                    {index < 3 && (
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                     )}
                   </div>
