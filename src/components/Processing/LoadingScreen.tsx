@@ -288,7 +288,7 @@ export const LoadingScreen: React.FC = () => {
             isTransitioning ? 'opacity-70 scale-98' : 'opacity-100 scale-100'
           }`}>
             <p className="text-sm text-slate-600 font-ibm italic">
-              💡 Our AI analyzes over 50 different factors including skills, experience, education, and cultural fit to provide the most accurate candidate rankings.
+              💡 Talynx uses advanced NLP models to evaluate candidate resumes based on role-specific relevance, skill overlap, and experience alignment—delivering transparent, ranked shortlists tailored to each job description.
             </p>
           </div>
         </div>

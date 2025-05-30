@@ -35,8 +35,8 @@ export const CandidateTable: React.FC = () => {
     return null;
   }
 
-  // Show only candidates ranked 2-10 (skip the top candidate)
-  const tableCandidates = candidates.slice(1, 10);
+  // Show all top 10 candidates
+  const tableCandidates = candidates.slice(0, 10);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-fade-in">
@@ -111,9 +111,9 @@ export const CandidateTable: React.FC = () => {
                 <td className="p-4">
                   <div className="flex items-center space-x-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white transform transition-transform hover:scale-110 ${getRankBadgeStyle(index)}`}>
-                      {index + 2} {/* Start from rank 2 */}
+                      {index + 1} {/* Show actual rank starting from 1 */}
                     </div>
-                    {index < 2 && ( // Only show for rank 2 and 3
+                    {index < 3 && ( // Show pulse for top 3 candidates
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                     )}
                   </div>
