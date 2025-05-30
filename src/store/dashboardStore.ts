@@ -37,7 +37,7 @@ interface DashboardState {
   uploadedFiles: File[];
   candidates: Candidate[];
   selectedCandidates: string[];
-  processing: ProcessingState;
+  processing: ProcessingState & { uploadedFiles?: number };
   selectedCandidate: string | null;
   showComparison: boolean;
   setJobDescription: (desc: string) => void;
@@ -46,7 +46,7 @@ interface DashboardState {
   removeUploadedFile: (fileName: string) => void;
   setCandidates: (candidates: Candidate[]) => void;
   setSelectedCandidates: (ids: string[]) => void;
-  setProcessing: (processing: ProcessingState) => void;
+  setProcessing: (processing: ProcessingState & { uploadedFiles?: number }) => void;
   setSelectedCandidate: (id: string | null) => void;
   setShowComparison: (show: boolean) => void;
   toggleCandidateSelection: (id: string) => void;

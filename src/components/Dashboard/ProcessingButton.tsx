@@ -18,48 +18,25 @@ export const ProcessingButton: React.FC = () => {
   const simulateProcessing = async () => {
     if (!canProcess) return;
 
-    // Start processing
+    // Start processing with file count
     setProcessing({
       isProcessing: true,
       currentStage: 'upload',
       progress: 0,
+      uploadedFiles: uploadedFiles.length,
       timings: { upload: 0, screening: 0, analysis: 0, total: 0 }
     });
 
-    // Upload stage
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setProcessing({
-      isProcessing: true,
-      currentStage: 'screening',
-      progress: 25,
-      timings: { upload: 1.2, screening: 0, analysis: 0, total: 0 }
-    });
+    // Simulate longer processing time to show the loading stages
+    await new Promise(resolve => setTimeout(resolve, 15000)); // 15 seconds total
 
-    // Screening stage
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setProcessing({
-      isProcessing: true,
-      currentStage: 'analysis',
-      progress: 50,
-      timings: { upload: 1.2, screening: 3.2, analysis: 0, total: 0 }
-    });
-
-    // Analysis stage (longest)
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    setProcessing({
-      isProcessing: true,
-      currentStage: 'complete',
-      progress: 100,
-      timings: { upload: 1.2, screening: 3.2, analysis: 28.7, total: 34.4 }
-    });
-
-    // Complete
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Complete processing
     setCandidates(mockCandidates);
     setProcessing({
       isProcessing: false,
       currentStage: 'complete',
       progress: 100,
+      uploadedFiles: uploadedFiles.length,
       timings: { upload: 1.2, screening: 3.2, analysis: 28.7, total: 34.4 }
     });
   };

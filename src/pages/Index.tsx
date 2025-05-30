@@ -4,6 +4,7 @@ import { Header } from '../components/Layout/Header';
 import { JobDescriptionInput } from '../components/JobDescription/JobDescriptionInput';
 import { FileUploadZone } from '../components/FileUpload/FileUploadZone';
 import { ProcessingPipeline } from '../components/Processing/ProcessingPipeline';
+import { LoadingScreen } from '../components/Processing/LoadingScreen';
 import { ProcessingButton } from '../components/Dashboard/ProcessingButton';
 import { TopCandidateSpotlight } from '../components/Results/TopCandidateSpotlight';
 import { CandidateTable } from '../components/Results/CandidateTable';
@@ -14,7 +15,19 @@ import { Sparkles, Users, FileSearch } from 'lucide-react';
 const Index = () => {
   const { candidates, processing } = useDashboardStore();
 
-  const showResults = candidates.length > 0 || processing.currentStage === 'complete';
+  const showResults = candidates.length > 0 && !processing.isProcessing;
+  const showLoading = processing.isProcessing;
+  const showInput = !processing.isProcessing && candidates.length === 0;
+
+  // Show loading screen when processing
+  if (showLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <LoadingScreen />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col w-full">
@@ -71,11 +84,6 @@ const Index = () => {
               </p>
             </div>
 
-            {/* Processing Pipeline */}
-            <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <ProcessingPipeline />
-            </div>
-
             {showResults ? (
               /* Results View */
               <div className="space-y-8 animate-fade-in">
@@ -125,7 +133,7 @@ const Index = () => {
                 <TopCandidateSpotlight />
                 <CandidateTable />
               </div>
-            ) : (
+            ) : showInput ? (
               /* Input View */
               <div className="space-y-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
@@ -142,7 +150,7 @@ const Index = () => {
                   <ProcessingButton />
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* Reset Button for Results */}
             {showResults && (
