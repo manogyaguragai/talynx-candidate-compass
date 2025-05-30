@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { Star, Mail, Phone, MessageSquare, Trophy, GraduationCap, Briefcase, Sparkles } from 'lucide-react';
@@ -6,6 +5,7 @@ import { Star, Mail, Phone, MessageSquare, Trophy, GraduationCap, Briefcase, Spa
 export const TopCandidateSpotlight: React.FC = () => {
   const { candidates } = useDashboardStore();
   
+  // Only show if there's at least one candidate
   if (candidates.length === 0) {
     return null;
   }
@@ -14,7 +14,6 @@ export const TopCandidateSpotlight: React.FC = () => {
 
   return (
     <div className="relative bg-gradient-to-br from-primary via-primary to-secondary rounded-2xl shadow-2xl text-white p-8 mb-8 overflow-hidden animate-fade-in">
-      {/* Background Decorations */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
       <div className="absolute top-1/2 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
@@ -31,12 +30,11 @@ export const TopCandidateSpotlight: React.FC = () => {
           </div>
           <div className="flex items-center space-x-2 animate-scale-in">
             <Star className="w-6 h-6 text-yellow-300 fill-current animate-pulse" />
-            <span className="text-2xl font-bold font-fira">{topCandidate.fitScore}%</span>
+            <span className="text-2xl font-bold font-fira">{topCandidate.fitScore.toFixed(1)}%</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Candidate Info */}
           <div className="lg:col-span-2 space-y-6">
             <div className="animate-fade-in">
               <h3 className="text-3xl font-bold font-inter mb-2">{topCandidate.name}</h3>
@@ -69,7 +67,6 @@ export const TopCandidateSpotlight: React.FC = () => {
               </div>
             </div>
 
-            {/* Skills */}
             <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <p className="text-sm font-semibold font-inter text-blue-100 mb-3">Key Skills</p>
               <div className="flex flex-wrap gap-2">
@@ -91,7 +88,6 @@ export const TopCandidateSpotlight: React.FC = () => {
             </div>
           </div>
 
-          {/* Actions & Metrics */}
           <div className="space-y-6">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 hover:bg-white/15 transition-all duration-300 animate-scale-in">
               <p className="text-sm font-semibold font-inter text-blue-100 mb-4">Match Metrics</p>
@@ -105,7 +101,7 @@ export const TopCandidateSpotlight: React.FC = () => {
                         style={{ width: `${topCandidate.fitScore}%` }}
                       />
                     </div>
-                    <span className="font-bold font-fira text-yellow-300">{topCandidate.fitScore}%</span>
+                    <span className="font-bold font-fira text-yellow-300">{topCandidate.fitScore.toFixed(1)}%</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -117,7 +113,7 @@ export const TopCandidateSpotlight: React.FC = () => {
                         style={{ width: `${topCandidate.overall_similarity * 100}%` }}
                       />
                     </div>
-                    <span className="font-bold font-fira">{Math.round(topCandidate.overall_similarity * 100)}%</span>
+                    <span className="font-bold font-fira">{(topCandidate.overall_similarity * 100).toFixed(1)}%</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -129,7 +125,7 @@ export const TopCandidateSpotlight: React.FC = () => {
                         style={{ width: `${topCandidate.llm_fit_score}%` }}
                       />
                     </div>
-                    <span className="font-bold font-fira text-purple-300">{topCandidate.llm_fit_score}%</span>
+                    <span className="font-bold font-fira text-purple-300">{topCandidate.llm_fit_score.toFixed(1)}%</span>
                   </div>
                 </div>
               </div>

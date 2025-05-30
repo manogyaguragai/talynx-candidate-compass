@@ -1,15 +1,15 @@
-
 import { create } from 'zustand';
 
+// src/store/dashboardStore.ts
 export interface Candidate {
-  id: string;
+  id: string;               // Use filename as ID
   name: string;
-  fitScore: number;
-  overall_similarity: number;
-  llm_fit_score: number;
+  fitScore: number;         // 0-100 percentage
+  overall_similarity: number; // 0-1 fraction
+  llm_fit_score: number;    // 0-100 percentage
   skills: {
     exact_matches: string[];
-    transferable: string[];
+    transferable: string[]; // Matches backend's "transferable_skills"
     non_technical: string[];
   };
   education_highlights: string;
@@ -20,10 +20,13 @@ export interface Candidate {
   mobile_number: string;
 }
 
+export type ProcessingStage = 'upload' | 'screening' | 'analysis' | 'complete' | 'error';
+
 export interface ProcessingState {
   isProcessing: boolean;
-  currentStage: 'upload' | 'screening' | 'analysis' | 'complete';
+  currentStage: ProcessingStage;
   progress: number;
+  uploadedFiles: number;
   timings: {
     upload: number;
     screening: number;
@@ -37,7 +40,7 @@ interface DashboardState {
   uploadedFiles: File[];
   candidates: Candidate[];
   selectedCandidates: string[];
-  processing: ProcessingState & { uploadedFiles?: number };
+  processing: ProcessingState;
   selectedCandidate: string | null;
   showComparison: boolean;
   setJobDescription: (desc: string) => void;
@@ -46,7 +49,7 @@ interface DashboardState {
   removeUploadedFile: (fileName: string) => void;
   setCandidates: (candidates: Candidate[]) => void;
   setSelectedCandidates: (ids: string[]) => void;
-  setProcessing: (processing: ProcessingState & { uploadedFiles?: number }) => void;
+  setProcessing: (processing: ProcessingState) => void;
   setSelectedCandidate: (id: string | null) => void;
   setShowComparison: (show: boolean) => void;
   toggleCandidateSelection: (id: string) => void;
@@ -57,6 +60,7 @@ const initialProcessingState: ProcessingState = {
   isProcessing: false,
   currentStage: 'upload',
   progress: 0,
+  uploadedFiles: 0,
   timings: {
     upload: 0,
     screening: 0,

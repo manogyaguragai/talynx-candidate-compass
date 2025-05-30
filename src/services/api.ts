@@ -1,12 +1,13 @@
-
+// src/services/api.ts
 import axios from 'axios';
+import JSZip from 'jszip';
 import { Candidate } from '../store/dashboardStore';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 300000, // 5 minutes timeout for processing
+  timeout: 300000,
 });
 
 export interface RankRequest {
@@ -17,74 +18,102 @@ export interface RankRequest {
 export const rankCandidates = async (request: RankRequest): Promise<Candidate[]> => {
   const formData = new FormData();
   formData.append('job_desc', request.job_desc);
-  
-  request.files.forEach((file) => {
-    formData.append('files', file);
-  });
 
-  const response = await api.post('/api/rank', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-
-  return response.data;
-};
-
-// Mock data for development
-export const mockCandidates: Candidate[] = [
-  {
-    id: "john_doe_resume.pdf",
-    name: "John Doe",
-    fitScore: 92,
-    overall_similarity: 0.85,
-    llm_fit_score: 92.0,
-    skills: {
-      exact_matches: ["Python", "AWS", "Docker", "React"],
-      transferable: ["Project Management", "Team Leadership"],
-      non_technical: ["Communication", "Problem Solving"]
-    },
-    education_highlights: "MS in Computer Science, Stanford University",
-    experience_highlights: "5+ years at TechCorp as Senior Developer",
-    summary: "Experienced full-stack developer with strong cloud architecture skills",
-    justification: "Strong technical match with excellent leadership experience and proven track record in similar technologies.",
-    email: "john.doe@example.com",
-    mobile_number: "+1-555-0123"
-  },
-  {
-    id: "sarah_wilson_cv.pdf",
-    name: "Sarah Wilson",
-    fitScore: 88,
-    overall_similarity: 0.82,
-    llm_fit_score: 88.0,
-    skills: {
-      exact_matches: ["JavaScript", "Node.js", "MongoDB"],
-      transferable: ["Agile Methodologies", "Code Review"],
-      non_technical: ["Mentoring", "Public Speaking"]
-    },
-    education_highlights: "BS in Software Engineering, MIT",
-    experience_highlights: "4 years at StartupXYZ as Lead Frontend Developer",
-    summary: "Frontend specialist with strong backend knowledge and mentoring experience",
-    justification: "Excellent frontend skills with growing full-stack capabilities and proven mentoring abilities.",
-    email: "sarah.wilson@example.com",
-    mobile_number: "+1-555-0456"
-  },
-  {
-    id: "mike_chen_resume.pdf",
-    name: "Mike Chen",
-    fitScore: 75,
-    overall_similarity: 0.68,
-    llm_fit_score: 75.0,
-    skills: {
-      exact_matches: ["Java", "Spring Boot"],
-      transferable: ["System Design", "Database Optimization"],
-      non_technical: ["Documentation", "Cross-team Collaboration"]
-    },
-    education_highlights: "MS in Information Systems, UC Berkeley",
-    experience_highlights: "3 years at Enterprise Corp as Backend Developer",
-    summary: "Backend focused developer with strong enterprise experience",
-    justification: "Solid backend foundation with enterprise experience, though may need frontend skill development.",
-    email: "mike.chen@example.com",
-    mobile_number: "+1-555-0789"
+  // Create zip only if files are provided
+  if (request.files.length > 0) {
+    const zip = new JSZip();
+    
+    // Add each file to the zip
+    for (const file of request.files) {
+      const arrayBuffer = await file.arrayBuffer();
+      zip.file(file.name, arrayBuffer);
+    }
+    
+    // Generate zip file
+    const zipBlob = await zip.generateAsync({ 
+      type: 'blob',
+      compression: 'STORE', // Use STORE compression for better compatibility
+    });
+    
+    const zipFile = new File([zipBlob], 'resumes.zip', {
+      type: 'application/zip',
+    });
+    
+    // Append zip to form data with the correct field name
+    formData.append('files', zipFile);
   }
-];
+
+  try {
+    // Debug: Log form data keys and file info
+    console.log('FormData entries:');
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: ${value.name} (${value.type}, ${value.size} bytes)`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/rank/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+      },
+      timeout: 300000,
+    });
+    
+    console.log('API response received:', response.data);
+    
+    if (!Array.isArray(response.data)) {
+      console.error('Invalid response format:', response.data);
+      throw new Error('Invalid response format: Expected array of candidates');
+    }
+    
+    // Transform backend response to match frontend Candidate interface
+    return response.data.map((candidate: any) => ({
+      id: candidate.id,
+      name: candidate.name,
+      fitScore: candidate.fitScore,
+      overall_similarity: candidate.overall_similarity,
+      llm_fit_score: candidate.llm_fit_score,
+      skills: {
+        exact_matches: candidate.skills.exact_matches || [],
+        transferable: candidate.skills.transferable || [],
+        non_technical: candidate.skills.non_technical || [],
+      },
+      education_highlights: candidate.education_highlights,
+      experience_highlights: candidate.experience_highlights,
+      summary: candidate.summary,
+      justification: candidate.justification,
+      email: candidate.email,
+      mobile_number: candidate.mobile_number
+    }));
+  } catch (error: any) {
+    console.error('API error details:');
+    console.error('URL:', `${API_BASE_URL}/rank/`);
+    
+    if (error.response) {
+      // Server responded with error status
+      console.error('Status:', error.response.status);
+      console.error('Headers:', error.response.headers);
+      console.error('Data:', error.response.data);
+      
+      let errorMessage = `Server error: ${error.response.status}`;
+      if (error.response.data && typeof error.response.data === 'object') {
+        errorMessage += ` - ${JSON.stringify(error.response.data)}`;
+      } else if (error.response.data) {
+        errorMessage += ` - ${error.response.data}`;
+      }
+      
+      throw new Error(errorMessage);
+    } else if (error.request) {
+      // No response received
+      console.error('No response received:', error.request);
+      throw new Error('No response from server. Check your network connection.');
+    } else {
+      // Other errors
+      console.error('Request setup error:', error.message);
+      throw new Error(`Request failed: ${error.message}`);
+    }
+  }
+};

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { ChevronDown, ChevronUp, Mail, Phone, MessageSquare, Eye, Star } from 'lucide-react';
@@ -36,6 +35,9 @@ export const CandidateTable: React.FC = () => {
     return null;
   }
 
+  // Show only candidates ranked 2-10 (skip the top candidate)
+  const tableCandidates = candidates.slice(1, 10);
+
   return (
     <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-fade-in">
       <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-6 border-b border-slate-200">
@@ -45,7 +47,7 @@ export const CandidateTable: React.FC = () => {
               Candidate Rankings
             </h2>
             <p className="text-sm text-slate-500 font-ibm mt-1 animate-fade-in">
-              Top {candidates.length} candidates ranked by AI analysis
+              Top {tableCandidates.length} candidates ranked by AI analysis
             </p>
           </div>
           <div className="flex items-center space-x-2 animate-scale-in">
@@ -65,7 +67,7 @@ export const CandidateTable: React.FC = () => {
                   className="rounded border-slate-300 hover:border-primary transition-colors"
                   onChange={(e) => {
                     if (e.target.checked) {
-                      const allIds = candidates.slice(0, 3).map(c => c.id);
+                      const allIds = tableCandidates.slice(0, 3).map(c => c.id);
                       allIds.forEach(id => {
                         if (!selectedCandidates.includes(id)) {
                           toggleCandidateSelection(id);
@@ -90,7 +92,7 @@ export const CandidateTable: React.FC = () => {
           </thead>
           
           <tbody className="divide-y divide-slate-100">
-            {candidates.map((candidate, index) => (
+            {tableCandidates.map((candidate, index) => (
               <tr 
                 key={candidate.id} 
                 className="hover:bg-gradient-to-r hover:from-slate-50 hover:to-transparent transition-all duration-200 group animate-fade-in"
@@ -109,9 +111,9 @@ export const CandidateTable: React.FC = () => {
                 <td className="p-4">
                   <div className="flex items-center space-x-2">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white transform transition-transform hover:scale-110 ${getRankBadgeStyle(index)}`}>
-                      {index + 1}
+                      {index + 2} {/* Start from rank 2 */}
                     </div>
-                    {index < 3 && (
+                    {index < 2 && ( // Only show for rank 2 and 3
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
                     )}
                   </div>
@@ -127,7 +129,7 @@ export const CandidateTable: React.FC = () => {
                 <td className="p-4">
                   <div className="flex items-center space-x-3">
                     <span className={`px-3 py-1 rounded-full text-sm font-bold border transition-all hover:scale-105 ${getScoreColor(candidate.fitScore)}`}>
-                      {candidate.fitScore}%
+                      {candidate.fitScore.toFixed(1)}%
                     </span>
                     <div className={`w-3 h-3 rounded-full transition-all hover:scale-125 shadow-md ${getScoreBadgeColor(candidate.fitScore)}`}></div>
                   </div>
@@ -145,7 +147,7 @@ export const CandidateTable: React.FC = () => {
                       />
                     </div>
                     <span className="text-sm font-fira text-slate-600">
-                      {Math.round(candidate.overall_similarity * 100)}%
+                      {(candidate.overall_similarity * 100).toFixed(1)}%
                     </span>
                   </div>
                 </td>

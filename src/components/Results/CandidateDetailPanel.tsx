@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { X, User, Star, GraduationCap, Briefcase, CheckCircle, ArrowRight, Mail, Phone } from 'lucide-react';
@@ -28,7 +27,6 @@ export const CandidateDetailPanel: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-6 animate-fade-in">
-          {/* Candidate Info Header */}
           <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-6 text-white animate-slide-in-right">
             <div className="flex items-center space-x-4 mb-4">
               <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-scale-in">
@@ -40,27 +38,26 @@ export const CandidateDetailPanel: React.FC = () => {
               </div>
               <div className="ml-auto flex items-center space-x-2">
                 <Star className="w-6 h-6 text-yellow-300 fill-current animate-pulse" />
-                <span className="text-2xl font-bold font-fira">{candidate.fitScore}%</span>
+                <span className="text-2xl font-bold font-fira">{candidate.fitScore.toFixed(1)}%</span>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-colors">
                 <p className="text-sm font-ibm text-blue-100">Fit Score</p>
-                <p className="text-xl font-bold font-fira">{candidate.fitScore}%</p>
+                <p className="text-xl font-bold font-fira">{candidate.fitScore.toFixed(1)}%</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-colors">
                 <p className="text-sm font-ibm text-blue-100">Similarity</p>
-                <p className="text-xl font-bold font-fira">{Math.round(candidate.overall_similarity * 100)}%</p>
+                <p className="text-xl font-bold font-fira">{(candidate.overall_similarity * 100).toFixed(1)}%</p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/20 transition-colors">
                 <p className="text-sm font-ibm text-blue-100">LLM Score</p>
-                <p className="text-xl font-bold font-fira">{candidate.llm_fit_score}%</p>
+                <p className="text-xl font-bold font-fira">{candidate.llm_fit_score.toFixed(1)}%</p>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-4 animate-fade-in">
             <a 
               href={`mailto:${candidate.email}`}
@@ -79,15 +76,12 @@ export const CandidateDetailPanel: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column */}
             <div className="space-y-6">
-              {/* Summary */}
               <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <h4 className="text-lg font-semibold font-inter text-slate-900 mb-3">Summary</h4>
                 <p className="text-slate-600 font-ibm leading-relaxed">{candidate.summary}</p>
               </div>
 
-              {/* Education */}
               <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <div className="flex items-center space-x-2 mb-3">
                   <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -98,7 +92,6 @@ export const CandidateDetailPanel: React.FC = () => {
                 <p className="text-slate-600 font-ibm">{candidate.education_highlights}</p>
               </div>
 
-              {/* Experience */}
               <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <div className="flex items-center space-x-2 mb-3">
                   <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center">
@@ -110,9 +103,7 @@ export const CandidateDetailPanel: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Column */}
             <div className="space-y-6">
-              {/* Skills Analysis */}
               <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <h4 className="text-lg font-semibold font-inter text-slate-900 mb-4">Skills Analysis</h4>
                 
@@ -179,7 +170,6 @@ export const CandidateDetailPanel: React.FC = () => {
                 </div>
               </div>
 
-              {/* AI Analysis */}
               <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <h4 className="text-lg font-semibold font-inter text-slate-900 mb-3">AI Analysis</h4>
                 <div className="bg-white rounded-lg p-4 border-l-4 border-primary">
@@ -187,7 +177,6 @@ export const CandidateDetailPanel: React.FC = () => {
                 </div>
               </div>
 
-              {/* Contact Info */}
               <div className="bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-shadow animate-fade-in">
                 <h4 className="text-lg font-semibold font-inter text-slate-900 mb-3">Contact Information</h4>
                 <div className="space-y-3">
