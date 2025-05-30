@@ -3,7 +3,6 @@ import React from 'react';
 import { Header } from '../components/Layout/Header';
 import { JobDescriptionInput } from '../components/JobDescription/JobDescriptionInput';
 import { FileUploadZone } from '../components/FileUpload/FileUploadZone';
-import { ProcessingPipeline } from '../components/Processing/ProcessingPipeline';
 import { LoadingScreen } from '../components/Processing/LoadingScreen';
 import { ProcessingButton } from '../components/Dashboard/ProcessingButton';
 import { TopCandidateSpotlight } from '../components/Results/TopCandidateSpotlight';
@@ -68,21 +67,23 @@ const Index = () => {
         
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header Section */}
-            <div className="text-center mb-12 animate-fade-in">
-              <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full mb-4 animate-scale-in shadow-lg">
-                <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
+            {showInput && (
+              /* Header Section - Only show on input view */
+              <div className="text-center mb-12 animate-fade-in">
+                <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full mb-4 animate-scale-in shadow-lg">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold font-inter text-slate-900 mb-4 animate-slide-in-right">
+                  Resume Screening
+                  <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined</span>
+                </h1>
+                <p className="text-xl text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                  Upload resumes and get intelligent candidate rankings powered by advanced AI analysis. 
+                  Find the perfect match for your team in seconds, not hours.
+                </p>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-inter text-slate-900 mb-4 animate-slide-in-right">
-                Resume Screening
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined</span>
-              </h1>
-              <p className="text-xl text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                Upload resumes and get intelligent candidate rankings powered by advanced AI analysis. 
-                Find the perfect match for your team in seconds, not hours.
-              </p>
-            </div>
+            )}
 
             {showResults ? (
               /* Results View */

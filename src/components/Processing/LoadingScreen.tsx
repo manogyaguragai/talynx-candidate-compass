@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
 import { FileText, Brain, Search, Sparkles, Users, CheckCircle, Clock } from 'lucide-react';
@@ -9,7 +8,7 @@ const LOADING_STAGES = [
     icon: FileText,
     title: 'Parsing Each Resume',
     description: 'Extracting text and structure from uploaded documents',
-    duration: 2000,
+    duration: 3000,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10'
   },
@@ -18,7 +17,7 @@ const LOADING_STAGES = [
     icon: Search,
     title: 'Extracting Hard and Soft Skills',
     description: 'Identifying technical competencies and interpersonal abilities',
-    duration: 2500,
+    duration: 3500,
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10'
   },
@@ -27,7 +26,7 @@ const LOADING_STAGES = [
     icon: Brain,
     title: 'Understanding Job Requirements',
     description: 'Analyzing role expectations and required qualifications',
-    duration: 1800,
+    duration: 2800,
     color: 'text-green-500',
     bgColor: 'bg-green-500/10'
   },
@@ -36,7 +35,7 @@ const LOADING_STAGES = [
     icon: Sparkles,
     title: 'Asking AI for Help',
     description: 'Leveraging machine learning for intelligent matching',
-    duration: 3000,
+    duration: 4000,
     color: 'text-yellow-500',
     bgColor: 'bg-yellow-500/10'
   },
@@ -45,7 +44,7 @@ const LOADING_STAGES = [
     icon: Users,
     title: 'Ranking Candidates',
     description: 'Calculating fit scores and generating recommendations',
-    duration: 2200,
+    duration: 3200,
     color: 'text-indigo-500',
     bgColor: 'bg-indigo-500/10'
   }
@@ -54,42 +53,30 @@ const LOADING_STAGES = [
 export const LoadingScreen: React.FC = () => {
   const { processing, candidates } = useDashboardStore();
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [stageProgress, setStageProgress] = useState(0);
   const [completedStages, setCompletedStages] = useState<string[]>([]);
 
   useEffect(() => {
     if (!processing.isProcessing) return;
 
-    const currentStage = LOADING_STAGES[currentStageIndex];
-    if (!currentStage) return;
-
-    // Progress animation for current stage
-    const progressInterval = setInterval(() => {
-      setStageProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setCompletedStages(prev => [...prev, currentStage.id]);
-          
-          if (currentStageIndex < LOADING_STAGES.length - 1) {
-            setTimeout(() => {
-              setCurrentStageIndex(prevIndex => prevIndex + 1);
-              setStageProgress(0);
-            }, 300);
-          }
-          return 100;
+    // Cycle through stages
+    const interval = setInterval(() => {
+      setCurrentStageIndex(prev => {
+        const nextIndex = (prev + 1) % LOADING_STAGES.length;
+        if (nextIndex === 0) {
+          // Completed a full cycle
+          setCompletedStages(LOADING_STAGES.map(s => s.id));
         }
-        return prev + (100 / (currentStage.duration / 50));
+        return nextIndex;
       });
-    }, 50);
+    }, LOADING_STAGES[currentStageIndex]?.duration || 3000);
 
-    return () => clearInterval(progressInterval);
+    return () => clearInterval(interval);
   }, [currentStageIndex, processing.isProcessing]);
 
   // Reset when processing starts
   useEffect(() => {
     if (processing.isProcessing && processing.currentStage === 'upload') {
       setCurrentStageIndex(0);
-      setStageProgress(0);
       setCompletedStages([]);
     }
   }, [processing.isProcessing, processing.currentStage]);
@@ -99,11 +86,12 @@ export const LoadingScreen: React.FC = () => {
   }
 
   const currentStage = LOADING_STAGES[currentStageIndex];
+  const otherStages = LOADING_STAGES.filter((_, index) => index !== currentStageIndex);
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center">
+    <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
       {/* Enhanced Animated Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
+      <div className="fixed inset-0">
         {/* Multiple floating orbs */}
         <div className="absolute top-10 left-10 w-32 h-32 bg-primary/8 rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute top-32 right-16 w-24 h-24 bg-purple-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
@@ -131,82 +119,64 @@ export const LoadingScreen: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        {/* Header */}
-        <div className="mb-12 animate-fade-in">
-          <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-primary/20 px-6 py-3 rounded-full mb-6 shadow-lg animate-scale-in">
-            <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-            <span className="text-sm font-medium text-primary font-ibm">AI Analysis in Progress</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold font-inter text-slate-900 mb-4">
-            Processing Your
-            <span className="bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent"> Candidates</span>
-          </h1>
-          <p className="text-xl text-slate-600 font-ibm max-w-2xl mx-auto">
-            Our AI is analyzing resumes and matching them against your job requirements
-          </p>
-        </div>
-
-        {/* Current Stage Display */}
-        {currentStage && (
-          <div className="mb-12 animate-scale-in">
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 max-w-2xl mx-auto">
-              <div className="flex items-center justify-center space-x-4 mb-6">
-                <div className={`w-16 h-16 ${currentStage.bgColor} rounded-2xl flex items-center justify-center animate-pulse`}>
-                  <currentStage.icon className={`w-8 h-8 ${currentStage.color}`} />
-                </div>
-                <div className="text-left">
-                  <h2 className="text-2xl font-bold font-inter text-slate-900">{currentStage.title}</h2>
-                  <p className="text-slate-600 font-ibm">{currentStage.description}</p>
-                </div>
+        {/* Current Stage - Large Display */}
+        <div className="mb-16 animate-scale-in">
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-12 max-w-3xl mx-auto transform transition-all duration-700 hover:scale-105">
+            <div className="flex items-center justify-center space-x-6 mb-8">
+              <div className={`w-20 h-20 ${currentStage.bgColor} rounded-3xl flex items-center justify-center animate-pulse shadow-lg`}>
+                <currentStage.icon className={`w-10 h-10 ${currentStage.color}`} />
               </div>
-              
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-200 rounded-full h-3 mb-4 overflow-hidden">
-                <div 
-                  className={`h-full bg-gradient-to-r from-primary to-purple-500 rounded-full transition-all duration-200 ease-out animate-pulse`}
-                  style={{ width: `${stageProgress}%` }}
+              <div className="text-left">
+                <h1 className="text-4xl font-bold font-inter text-slate-900 mb-2">{currentStage.title}</h1>
+                <p className="text-xl text-slate-600 font-ibm">{currentStage.description}</p>
+              </div>
+            </div>
+            
+            {/* Animated dots to show progress */}
+            <div className="flex justify-center space-x-2">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="w-3 h-3 bg-primary rounded-full animate-pulse"
+                  style={{ 
+                    animationDelay: `${i * 0.3}s`,
+                    animationDuration: '1s'
+                  }}
                 ></div>
-              </div>
-              <p className="text-sm text-slate-500 font-fira">{Math.round(stageProgress)}% Complete</p>
+              ))}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* All Stages Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-12">
-          {LOADING_STAGES.map((stage, index) => {
+        {/* Other Stages - Small Display at Bottom */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
+          {otherStages.map((stage, index) => {
             const isCompleted = completedStages.includes(stage.id);
-            const isCurrent = index === currentStageIndex;
-            const isPending = index > currentStageIndex;
             
             return (
               <div
                 key={stage.id}
-                className={`relative p-4 rounded-xl border transition-all duration-500 ${
+                className={`relative p-4 rounded-xl border transition-all duration-500 transform hover:scale-105 ${
                   isCompleted 
-                    ? 'bg-green-50 border-green-200 shadow-lg scale-105' 
-                    : isCurrent
-                    ? `${stage.bgColor} border-slate-300 shadow-lg scale-110 animate-pulse`
-                    : 'bg-white/60 border-slate-200'
+                    ? 'bg-green-50 border-green-200 shadow-lg' 
+                    : 'bg-white/60 border-slate-200 shadow-sm'
                 } backdrop-blur-sm`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="flex flex-col items-center space-y-2">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     isCompleted 
                       ? 'bg-green-500 text-white' 
-                      : isCurrent 
-                      ? `${stage.bgColor} ${stage.color}` 
-                      : 'bg-slate-100 text-slate-400'
+                      : `${stage.bgColor} ${stage.color}`
                   }`}>
                     {isCompleted ? (
-                      <CheckCircle className="w-6 h-6" />
+                      <CheckCircle className="w-5 h-5" />
                     ) : (
-                      <stage.icon className="w-6 h-6" />
+                      <stage.icon className="w-5 h-5" />
                     )}
                   </div>
                   <p className={`text-sm font-medium font-inter text-center ${
-                    isCompleted ? 'text-green-700' : isCurrent ? 'text-slate-900' : 'text-slate-500'
+                    isCompleted ? 'text-green-700' : 'text-slate-700'
                   }`}>
                     {stage.title}
                   </p>
