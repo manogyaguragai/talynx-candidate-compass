@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Header } from '../components/Layout/Header';
 import { JobDescriptionInput } from '../components/JobDescription/JobDescriptionInput';
@@ -8,6 +7,7 @@ import { ProcessingButton } from '../components/Dashboard/ProcessingButton';
 import { TopCandidateSpotlight } from '../components/Results/TopCandidateSpotlight';
 import { CandidateTable } from '../components/Results/CandidateTable';
 import { CandidateDetailPanel } from '../components/Results/CandidateDetailPanel';
+import { ProcessInfographic } from '../components/Landing/ProcessInfographic';
 import { useDashboardStore } from '../store/dashboardStore';
 import { Sparkles, Users, FileSearch } from 'lucide-react';
 
@@ -65,29 +65,56 @@ const Index = () => {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Header />
         
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {showInput && (
-              /* Header Section - Only show on input view */
-              <div className="text-center mb-12 animate-fade-in">
-                <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full mb-4 animate-scale-in shadow-lg">
-                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                  <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
+        <main className="flex-1">
+          {showInput && (
+            <>
+              {/* Header Section */}
+              <div className="p-6">
+                <div className="max-w-7xl mx-auto">
+                  <div className="text-center mb-12 animate-fade-in">
+                    <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full mb-4 animate-scale-in shadow-lg">
+                      <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                      <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-bold font-inter text-slate-900 mb-4 animate-slide-in-right">
+                      Resume Screening
+                      <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined</span>
+                    </h1>
+                    <p className="text-xl text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                      Upload resumes and get intelligent candidate rankings powered by advanced AI analysis. 
+                      Find the perfect match for your team in seconds, not hours.
+                    </p>
+                  </div>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold font-inter text-slate-900 mb-4 animate-slide-in-right">
-                  Resume Screening
-                  <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined</span>
-                </h1>
-                <p className="text-xl text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                  Upload resumes and get intelligent candidate rankings powered by advanced AI analysis. 
-                  Find the perfect match for your team in seconds, not hours.
-                </p>
               </div>
-            )}
 
-            {showResults ? (
-              /* Results View */
-              <div className="space-y-8 animate-fade-in">
+              {/* Process Infographic */}
+              <ProcessInfographic />
+
+              {/* Input Section */}
+              <div className="p-6" data-upload-section>
+                <div className="max-w-7xl mx-auto space-y-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                    <div className="animate-slide-in-right">
+                      <JobDescriptionInput />
+                    </div>
+                    <div className="animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                      <FileUploadZone />
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex justify-center py-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+                    <ProcessingButton />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {showResults && (
+            <div className="p-6">
+              <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-6 hover:shadow-xl hover:bg-white/90 transition-all duration-300 animate-scale-in">
@@ -134,41 +161,24 @@ const Index = () => {
                 <TopCandidateSpotlight />
                 <CandidateTable />
               </div>
-            ) : showInput ? (
-              /* Input View */
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                  <div className="animate-slide-in-right">
-                    <JobDescriptionInput />
-                  </div>
-                  <div className="animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
-                    <FileUploadZone />
-                  </div>
-                </div>
+            </div>
+          )}
 
-                {/* Action Button */}
-                <div className="flex justify-center py-8 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-                  <ProcessingButton />
-                </div>
-              </div>
-            ) : null}
-
-            {/* Reset Button for Results */}
-            {showResults && (
-              <div className="flex justify-center py-6 animate-fade-in">
-                <button
-                  onClick={() => {
-                    const { resetState } = useDashboardStore.getState();
-                    resetState();
-                  }}
-                  className="group inline-flex items-center space-x-2 px-8 py-3 text-sm font-medium font-ibm text-slate-600 bg-white/80 backdrop-blur-sm border-2 border-slate-300/50 rounded-xl hover:bg-white/90 hover:border-primary transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
-                >
-                  <Sparkles className="w-4 h-4 group-hover:animate-spin" />
-                  <span>Start New Analysis</span>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Reset Button for Results */}
+          {showResults && (
+            <div className="flex justify-center py-6 animate-fade-in">
+              <button
+                onClick={() => {
+                  const { resetState } = useDashboardStore.getState();
+                  resetState();
+                }}
+                className="group inline-flex items-center space-x-2 px-8 py-3 text-sm font-medium font-ibm text-slate-600 bg-white/80 backdrop-blur-sm border-2 border-slate-300/50 rounded-xl hover:bg-white/90 hover:border-primary transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <Sparkles className="w-4 h-4 group-hover:animate-spin" />
+                <span>Start New Analysis</span>
+              </button>
+            </div>
+          )}
         </main>
 
         {/* Enhanced Footer */}
