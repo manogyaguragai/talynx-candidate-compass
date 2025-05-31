@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Header } from '../components/Layout/Header';
 import { JobDescriptionInput } from '../components/JobDescription/JobDescriptionInput';
@@ -98,8 +97,7 @@ const Index = () => {
                       <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold font-inter text-slate-900 mb-3 animate-slide-in-right">
-                      Resume Screening
-                      <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined.</span>
+                      Hire <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Faster.</span> Hire <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Smarter.</span>
                     </h1>
                     <p className="text-lg text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{
                   animationDelay: '0.2s'

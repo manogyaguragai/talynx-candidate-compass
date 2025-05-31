@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Upload, FileText, Trophy, ArrowRight, ChevronDown } from 'lucide-react';
 
@@ -103,12 +102,12 @@ export const ProcessInfographic: React.FC = () => {
                 )}
                 
                 {/* Step Card */}
-                <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl p-5 shadow-lg border-2 transition-all duration-700 transform ${
+                <div className={`relative bg-white rounded-xl p-5 shadow-lg border-2 transition-all duration-700 transform ${
                   isActive 
                     ? 'scale-105 shadow-xl border-primary bg-white' 
                     : isPrevious 
-                      ? 'scale-100 border-success/50 bg-white/95' 
-                      : 'scale-95 border-slate-200 bg-white/80'
+                      ? 'scale-100 border-success/50 bg-white/95 blur-sm' 
+                      : 'scale-95 border-slate-200 bg-white/80 blur-sm'
                 }`}>
                   {/* Step Number */}
                   <div className={`absolute -top-3 -left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-fira transition-all duration-500 ${
