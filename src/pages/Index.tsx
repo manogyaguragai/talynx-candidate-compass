@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Header } from '../components/Layout/Header';
 import { JobDescriptionInput } from '../components/JobDescription/JobDescriptionInput';
@@ -10,6 +11,7 @@ import { CandidateDetailPanel } from '../components/Results/CandidateDetailPanel
 import { ProcessInfographic } from '../components/Landing/ProcessInfographic';
 import { useDashboardStore } from '../store/dashboardStore';
 import { Sparkles, Users, FileSearch } from 'lucide-react';
+
 const Index = () => {
   const {
     candidates,
@@ -26,6 +28,7 @@ const Index = () => {
         <LoadingScreen />
       </div>;
   }
+
   return <div className="min-h-screen relative overflow-hidden flex flex-col w-full">
       {/* Animated Background */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
@@ -90,13 +93,13 @@ const Index = () => {
               <div className="p-4 px-[22px]">
                 <div className="max-w-7xl mx-auto">
                   <div className="text-center mb-6 animate-fade-in">
-                    <div className="inline-flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full mb-3 animate-scale-in shadow-lg">
+                    <div className="inline-flex items-center space-x-2 bg-white border border-primary/20 px-4 py-2 rounded-full mb-3 animate-scale-in shadow-lg">
                       <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                       <span className="text-sm font-medium text-primary font-ibm">AI-Powered Talent Discovery</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold font-inter text-slate-900 mb-3 animate-slide-in-right">
                       Resume Screening
-                      <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined.</span>
+                      <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Reimagined.</span>
                     </h1>
                     <p className="text-lg text-slate-600 font-ibm max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{
                   animationDelay: '0.2s'
@@ -138,7 +141,7 @@ const Index = () => {
               <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-6 hover:shadow-xl hover:bg-white/90 transition-all duration-300 animate-scale-in">
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 animate-scale-in">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                         <Users className="w-6 h-6 text-primary" />
@@ -150,7 +153,7 @@ const Index = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-6 hover:shadow-xl hover:bg-white/90 transition-all duration-300 animate-scale-in" style={{
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 animate-scale-in" style={{
                 animationDelay: '0.1s'
               }}>
                     <div className="flex items-center space-x-3">
@@ -166,7 +169,7 @@ const Index = () => {
                     </div>
                   </div>
                   
-                  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-6 hover:shadow-xl hover:bg-white/90 transition-all duration-300 animate-scale-in" style={{
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 animate-scale-in" style={{
                 animationDelay: '0.2s'
               }}>
                     <div className="flex items-center space-x-3">
@@ -195,7 +198,7 @@ const Index = () => {
               resetState
             } = useDashboardStore.getState();
             resetState();
-          }} className="group inline-flex items-center space-x-2 px-8 py-3 text-sm font-medium font-ibm text-slate-600 bg-white/80 backdrop-blur-sm border-2 border-slate-300/50 rounded-xl hover:bg-white/90 hover:border-primary transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+          }} className="group inline-flex items-center space-x-2 px-8 py-3 text-sm font-medium font-ibm text-slate-600 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 hover:border-primary transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
                 <Sparkles className="w-4 h-4 group-hover:animate-spin" />
                 <span>Start New Analysis</span>
               </button>
@@ -203,7 +206,7 @@ const Index = () => {
         </main>
 
         {/* Enhanced Footer */}
-        <footer className="bg-white/60 backdrop-blur-sm border-t border-slate-200/50 px-6 py-6 animate-fade-in relative z-10">
+        <footer className="bg-white border-t border-slate-200 px-6 py-6 animate-fade-in relative z-10">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between text-sm text-slate-500 font-ibm space-y-2 md:space-y-0">
               <div className="flex items-center space-x-2">
@@ -230,4 +233,5 @@ const Index = () => {
       <CandidateDetailPanel />
     </div>;
 };
+
 export default Index;

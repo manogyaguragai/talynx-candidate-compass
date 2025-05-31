@@ -57,31 +57,34 @@ const PROCESS_STEPS = [
     icon: Trophy,
     title: 'Initial AI Ranking',
     description: 'First AI model ranks top 10 candidates from the entire pool',
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10'
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-100',
+    position: 20
   },
   {
     id: 'llm-analysis',
     icon: Brain,
     title: 'Advanced LLM Analysis',
     description: 'Second LLM performs deep analysis and computes precise fit scores',
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10'
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100',
+    position: 50
   },
   {
     id: 'final-ranking',
     icon: Zap,
     title: 'Final Ranking',
     description: 'Candidates ranked by comprehensive fit scores and recommendations',
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10'
+    color: 'text-green-600',
+    bgColor: 'bg-green-100',
+    position: 80
   }
 ];
 
 export const LoadingScreen: React.FC = () => {
   const { processing, candidates } = useDashboardStore();
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [processStepIndex, setProcessStepIndex] = useState(0);
+  const [timelineProgress, setTimelineProgress] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -99,21 +102,25 @@ export const LoadingScreen: React.FC = () => {
     return () => clearInterval(interval);
   }, [processing.isProcessing]);
 
+  // Timeline progress animation
   useEffect(() => {
     if (!processing.isProcessing) return;
 
-    const processInterval = setInterval(() => {
-      setProcessStepIndex(prev => (prev + 1) % PROCESS_STEPS.length);
-    }, 2500);
+    const progressInterval = setInterval(() => {
+      setTimelineProgress(prev => {
+        const newProgress = prev + 1;
+        return newProgress > 100 ? 0 : newProgress;
+      });
+    }, 80);
 
-    return () => clearInterval(processInterval);
+    return () => clearInterval(progressInterval);
   }, [processing.isProcessing]);
 
   // Reset when processing starts
   useEffect(() => {
     if (processing.isProcessing && processing.currentStage === 'upload') {
       setCurrentStageIndex(0);
-      setProcessStepIndex(0);
+      setTimelineProgress(0);
       setIsTransitioning(false);
     }
   }, [processing.isProcessing, processing.currentStage]);
@@ -154,13 +161,13 @@ export const LoadingScreen: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
         {/* Current Stage - Large Display */}
-        <div className="mb-16 relative">
-          <div className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-12 max-w-3xl mx-auto transition-all duration-700 ${
+        <div className="mb-20 relative">
+          <div className={`bg-white rounded-3xl shadow-xl border border-slate-200 p-12 max-w-3xl mx-auto transition-all duration-700 ${
             isTransitioning 
               ? 'transform scale-95 opacity-80 translate-y-4' 
-              : 'transform scale-105 opacity-100 translate-y-0 shadow-3xl'
+              : 'transform scale-105 opacity-100 translate-y-0'
           }`}>
             <div className="flex items-center justify-center space-x-6 mb-8">
               <div className={`w-20 h-20 ${currentStage.bgColor} rounded-3xl flex items-center justify-center shadow-lg transition-all duration-700 ${
@@ -198,85 +205,114 @@ export const LoadingScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Process Infographic */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold font-inter text-slate-900 mb-8">How We Process Your Resumes</h2>
+        {/* Animated Timeline Process Flow */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold font-inter text-slate-900 mb-12">How We Process Your Resumes</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {PROCESS_STEPS.map((step, index) => {
-              const isActive = processStepIndex === index;
-              const Icon = step.icon;
-              
-              return (
-                <div key={step.id} className="relative">
-                  {/* Connector Arrow */}
-                  {index < PROCESS_STEPS.length - 1 && (
-                    <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-20">
-                      <ArrowRight className={`w-6 h-6 transition-all duration-500 ${
-                        isActive ? 'text-primary animate-pulse scale-110' : 'text-slate-300'
-                      }`} />
-                    </div>
-                  )}
-                  
-                  {/* Step Card */}
-                  <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border-2 transition-all duration-700 transform ${
-                    isActive 
-                      ? 'scale-110 shadow-2xl border-primary bg-white animate-pulse' 
-                      : 'scale-100 border-slate-200 bg-white/80'
-                  }`}>
-                    {/* Icon */}
-                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-4 mx-auto transition-all duration-500 ${
-                      isActive 
-                        ? step.bgColor + ' animate-bounce' 
-                        : 'bg-slate-100'
+          {/* Timeline Container */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Main Timeline Line */}
+            <div className="absolute top-16 left-0 right-0 h-1 bg-slate-200 rounded-full">
+              {/* Animated Progress Line */}
+              <div 
+                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 rounded-full transition-all duration-300 relative"
+                style={{ width: `${timelineProgress}%` }}
+              >
+                {/* Moving Sparkle */}
+                <div className="absolute -right-2 -top-1 w-3 h-3 bg-white rounded-full shadow-lg flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline Steps */}
+            <div className="relative flex justify-between items-start">
+              {PROCESS_STEPS.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = timelineProgress >= step.position - 10 && timelineProgress <= step.position + 10;
+                const isPassed = timelineProgress > step.position + 10;
+                
+                return (
+                  <div 
+                    key={step.id} 
+                    className="flex flex-col items-center relative"
+                    style={{ width: '30%' }}
+                  >
+                    {/* Timeline Point */}
+                    <div className={`relative z-10 w-12 h-12 rounded-full border-4 flex items-center justify-center mb-6 transition-all duration-500 ${
+                      isPassed 
+                        ? 'bg-green-500 border-green-500 scale-110' 
+                        : isActive 
+                          ? 'bg-white border-primary scale-125 shadow-lg animate-pulse' 
+                          : 'bg-white border-slate-300'
                     }`}>
-                      <Icon className={`w-8 h-8 transition-all duration-500 ${
-                        isActive 
-                          ? step.color + ' animate-pulse' 
-                          : 'text-slate-400'
-                      }`} />
+                      {isPassed ? (
+                        <CheckCircle className="w-6 h-6 text-white" />
+                      ) : (
+                        <Icon className={`w-6 h-6 transition-all duration-500 ${
+                          isActive ? step.color + ' scale-110' : 'text-slate-400'
+                        }`} />
+                      )}
+                      
+                      {/* Pulsing Ring for Active Step */}
+                      {isActive && (
+                        <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-75"></div>
+                      )}
                     </div>
                     
-                    {/* Content */}
-                    <div className="text-center">
-                      <h3 className={`text-lg font-bold font-inter mb-2 transition-all duration-500 ${
-                        isActive 
-                          ? 'text-slate-900' 
-                          : 'text-slate-600'
-                      }`}>
-                        {step.title}
-                      </h3>
-                      <p className={`text-sm font-ibm leading-relaxed transition-all duration-500 ${
-                        isActive 
-                          ? 'text-slate-700' 
-                          : 'text-slate-500'
-                      }`}>
-                        {step.description}
-                      </p>
+                    {/* Step Card */}
+                    <div className={`bg-white rounded-xl p-6 shadow-lg border-2 transition-all duration-500 w-full max-w-xs ${
+                      isActive 
+                        ? 'border-primary scale-105 shadow-xl' 
+                        : isPassed
+                          ? 'border-green-200 bg-green-50'
+                          : 'border-slate-200'
+                    }`}>
+                      <div className="text-center">
+                        <h3 className={`text-lg font-bold font-inter mb-2 transition-all duration-500 ${
+                          isPassed 
+                            ? 'text-green-700' 
+                            : isActive 
+                              ? 'text-slate-900' 
+                              : 'text-slate-600'
+                        }`}>
+                          {step.title}
+                        </h3>
+                        <p className={`text-sm font-ibm leading-relaxed transition-all duration-500 ${
+                          isPassed 
+                            ? 'text-green-600' 
+                            : isActive 
+                              ? 'text-slate-700' 
+                              : 'text-slate-500'
+                        }`}>
+                          {step.description}
+                        </p>
+                      </div>
+                      
+                      {/* Active indicator glow */}
+                      {isActive && (
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-purple-500/5 animate-pulse pointer-events-none"></div>
+                      )}
                     </div>
-                    
-                    {/* Active indicator glow */}
-                    {isActive && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 animate-pulse pointer-events-none"></div>
-                    )}
                     
                     {/* Floating particles for active step */}
                     {isActive && (
                       <>
-                        <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary/30 rounded-full animate-ping"></div>
-                        <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-secondary/30 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute top-2 left-1/2 w-2 h-2 bg-primary/40 rounded-full animate-ping"></div>
+                        <div className="absolute top-4 right-1/4 w-1.5 h-1.5 bg-purple-500/40 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute bottom-4 left-1/4 w-1 h-1 bg-green-500/40 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
                       </>
                     )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+          <div className={`bg-white rounded-xl p-6 border border-slate-200 shadow-lg transition-all duration-500 ${
             isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
           }`}>
             <div className="flex items-center space-x-3">
@@ -290,7 +326,7 @@ export const LoadingScreen: React.FC = () => {
             </div>
           </div>
           
-          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+          <div className={`bg-white rounded-xl p-6 border border-slate-200 shadow-lg transition-all duration-500 ${
             isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
           }`} style={{ transitionDelay: '0.1s' }}>
             <div className="flex items-center space-x-3">
@@ -304,7 +340,7 @@ export const LoadingScreen: React.FC = () => {
             </div>
           </div>
           
-          <div className={`bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-slate-200/50 shadow-lg transition-all duration-500 ${
+          <div className={`bg-white rounded-xl p-6 border border-slate-200 shadow-lg transition-all duration-500 ${
             isTransitioning ? 'opacity-80 scale-95' : 'opacity-100 scale-100'
           }`} style={{ transitionDelay: '0.2s' }}>
             <div className="flex items-center space-x-3">
