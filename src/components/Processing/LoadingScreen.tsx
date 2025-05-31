@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useDashboardStore } from '../../store/dashboardStore';
-import { FileText, Brain, Search, Sparkles, Users, CheckCircle, Clock } from 'lucide-react';
+import { FileText, Brain, Search, Sparkles, Users, CheckCircle, Clock, ArrowRight, Trophy, Zap } from 'lucide-react';
 
 const LOADING_STAGES = [
   {
@@ -50,10 +51,37 @@ const LOADING_STAGES = [
   }
 ];
 
+const PROCESS_STEPS = [
+  {
+    id: 'initial-rank',
+    icon: Trophy,
+    title: 'Initial AI Ranking',
+    description: 'First AI model ranks top 10 candidates from the entire pool',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10'
+  },
+  {
+    id: 'llm-analysis',
+    icon: Brain,
+    title: 'Advanced LLM Analysis',
+    description: 'Second LLM performs deep analysis and computes precise fit scores',
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10'
+  },
+  {
+    id: 'final-ranking',
+    icon: Zap,
+    title: 'Final Ranking',
+    description: 'Candidates ranked by comprehensive fit scores and recommendations',
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10'
+  }
+];
+
 export const LoadingScreen: React.FC = () => {
   const { processing, candidates } = useDashboardStore();
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [completedStages, setCompletedStages] = useState<string[]>([]);
+  const [processStepIndex, setProcessStepIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -62,15 +90,8 @@ export const LoadingScreen: React.FC = () => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
       
-      // After a brief moment, change the stage
       setTimeout(() => {
-        setCurrentStageIndex(prev => {
-          const nextIndex = (prev + 1) % LOADING_STAGES.length;
-          if (nextIndex === 0) {
-            setCompletedStages(LOADING_STAGES.map(s => s.id));
-          }
-          return nextIndex;
-        });
+        setCurrentStageIndex(prev => (prev + 1) % LOADING_STAGES.length);
         setIsTransitioning(false);
       }, 300);
     }, 3000);
@@ -78,11 +99,21 @@ export const LoadingScreen: React.FC = () => {
     return () => clearInterval(interval);
   }, [processing.isProcessing]);
 
+  useEffect(() => {
+    if (!processing.isProcessing) return;
+
+    const processInterval = setInterval(() => {
+      setProcessStepIndex(prev => (prev + 1) % PROCESS_STEPS.length);
+    }, 2500);
+
+    return () => clearInterval(processInterval);
+  }, [processing.isProcessing]);
+
   // Reset when processing starts
   useEffect(() => {
     if (processing.isProcessing && processing.currentStage === 'upload') {
       setCurrentStageIndex(0);
-      setCompletedStages([]);
+      setProcessStepIndex(0);
       setIsTransitioning(false);
     }
   }, [processing.isProcessing, processing.currentStage]);
@@ -92,7 +123,6 @@ export const LoadingScreen: React.FC = () => {
   }
 
   const currentStage = LOADING_STAGES[currentStageIndex];
-  const otherStages = LOADING_STAGES.filter((_, index) => index !== currentStageIndex);
 
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/30">
@@ -125,7 +155,7 @@ export const LoadingScreen: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        {/* Current Stage - Large Display with Masterpiece Animation */}
+        {/* Current Stage - Large Display */}
         <div className="mb-16 relative">
           <div className={`bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-200/50 p-12 max-w-3xl mx-auto transition-all duration-700 ${
             isTransitioning 
@@ -166,73 +196,82 @@ export const LoadingScreen: React.FC = () => {
               ))}
             </div>
           </div>
-
-          {/* Floating effect overlay */}
-          <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent rounded-3xl transition-opacity duration-700 ${
-            isTransitioning ? 'opacity-0' : 'opacity-100 animate-pulse'
-          }`}></div>
         </div>
 
-        {/* Other Stages - Small Display at Bottom with Float-up Animation */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
-          {otherStages.map((stage, index) => {
-            const isCompleted = completedStages.includes(stage.id);
-            const willBeNext = LOADING_STAGES[(currentStageIndex + 1) % LOADING_STAGES.length].id === stage.id;
-            
-            return (
-              <div
-                key={stage.id}
-                className={`relative p-4 rounded-xl border transition-all duration-700 transform ${
-                  isCompleted 
-                    ? 'bg-green-50 border-green-200 shadow-lg scale-100' 
-                    : willBeNext
-                    ? 'bg-white/80 border-primary/30 shadow-lg scale-105 -translate-y-2 animate-pulse'
-                    : 'bg-white/60 border-slate-200 shadow-sm scale-100 translate-y-0'
-                } backdrop-blur-sm hover:scale-110 hover:-translate-y-1`}
-                style={{ 
-                  animationDelay: `${index * 0.1}s`,
-                  transitionDelay: willBeNext ? '0ms' : `${index * 50}ms`
-                }}
-              >
-                <div className="flex flex-col items-center space-y-2">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
-                    isCompleted 
-                      ? 'bg-green-500 text-white scale-110' 
-                      : willBeNext
-                      ? `${stage.bgColor} ${stage.color} scale-110 animate-pulse`
-                      : `${stage.bgColor} ${stage.color} scale-100`
-                  }`}>
-                    {isCompleted ? (
-                      <CheckCircle className="w-5 h-5" />
-                    ) : (
-                      <stage.icon className={`w-5 h-5 transition-transform duration-300 ${
-                        willBeNext ? 'rotate-12' : 'rotate-0'
+        {/* Process Infographic */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold font-inter text-slate-900 mb-8">How We Process Your Resumes</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {PROCESS_STEPS.map((step, index) => {
+              const isActive = processStepIndex === index;
+              const Icon = step.icon;
+              
+              return (
+                <div key={step.id} className="relative">
+                  {/* Connector Arrow */}
+                  {index < PROCESS_STEPS.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-20">
+                      <ArrowRight className={`w-6 h-6 transition-all duration-500 ${
+                        isActive ? 'text-primary animate-pulse scale-110' : 'text-slate-300'
                       }`} />
+                    </div>
+                  )}
+                  
+                  {/* Step Card */}
+                  <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border-2 transition-all duration-700 transform ${
+                    isActive 
+                      ? 'scale-110 shadow-2xl border-primary bg-white animate-pulse' 
+                      : 'scale-100 border-slate-200 bg-white/80'
+                  }`}>
+                    {/* Icon */}
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-4 mx-auto transition-all duration-500 ${
+                      isActive 
+                        ? step.bgColor + ' animate-bounce' 
+                        : 'bg-slate-100'
+                    }`}>
+                      <Icon className={`w-8 h-8 transition-all duration-500 ${
+                        isActive 
+                          ? step.color + ' animate-pulse' 
+                          : 'text-slate-400'
+                      }`} />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="text-center">
+                      <h3 className={`text-lg font-bold font-inter mb-2 transition-all duration-500 ${
+                        isActive 
+                          ? 'text-slate-900' 
+                          : 'text-slate-600'
+                      }`}>
+                        {step.title}
+                      </h3>
+                      <p className={`text-sm font-ibm leading-relaxed transition-all duration-500 ${
+                        isActive 
+                          ? 'text-slate-700' 
+                          : 'text-slate-500'
+                      }`}>
+                        {step.description}
+                      </p>
+                    </div>
+                    
+                    {/* Active indicator glow */}
+                    {isActive && (
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 animate-pulse pointer-events-none"></div>
+                    )}
+                    
+                    {/* Floating particles for active step */}
+                    {isActive && (
+                      <>
+                        <div className="absolute -top-2 -left-2 w-4 h-4 bg-primary/30 rounded-full animate-ping"></div>
+                        <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-secondary/30 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                      </>
                     )}
                   </div>
-                  <p className={`text-sm font-medium font-inter text-center transition-all duration-300 ${
-                    isCompleted 
-                      ? 'text-green-700' 
-                      : willBeNext
-                      ? 'text-primary font-semibold'
-                      : 'text-slate-700'
-                  }`}>
-                    {stage.title}
-                  </p>
                 </div>
-                
-                {isCompleted && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-scale-in">
-                    <CheckCircle className="w-4 h-4 text-white" />
-                  </div>
-                )}
-
-                {willBeNext && (
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full animate-ping"></div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
         {/* Stats */}
@@ -256,13 +295,11 @@ export const LoadingScreen: React.FC = () => {
           }`} style={{ transitionDelay: '0.1s' }}>
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-purple-600" />
+                <Brain className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold font-fira text-slate-900">
-                  {currentStageIndex + 1}/{LOADING_STAGES.length}
-                </p>
-                <p className="text-sm text-slate-500 font-ibm">Current Stage</p>
+                <p className="text-2xl font-bold font-fira text-slate-900">2</p>
+                <p className="text-sm text-slate-500 font-ibm">AI Models Used</p>
               </div>
             </div>
           </div>
@@ -288,7 +325,7 @@ export const LoadingScreen: React.FC = () => {
             isTransitioning ? 'opacity-70 scale-98' : 'opacity-100 scale-100'
           }`}>
             <p className="text-sm text-slate-600 font-ibm italic">
-              💡 Talynx uses advanced NLP models to evaluate candidate resumes based on role-specific relevance, skill overlap, and experience alignment—delivering transparent, ranked shortlists tailored to each job description.
+              💡 Our dual-AI approach first identifies the top 10 candidates from your entire pool, then uses advanced LLM analysis to compute precise fit scores and generate detailed insights for each candidate.
             </p>
           </div>
         </div>
